@@ -15,5 +15,8 @@ elseif(CMAKE_COMPILER_IS_GNUCC) # Компилятор GCC
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wconversion -Wextra -Wpedantic")
 endif()
 
-add_executable("lecture-01" "lecture-01.cpp")
-add_executable("practice-01" "practice-01.cpp")
+add_subdirectory("lecture-01-methods-ctors")
+add_subdirectory("lecture-03-exception_safety-operators")
+add_subdirectory("lecture-04-dtor-raii-rule_of_three")
+add_subdirectory("practice-01-const-static-ref-namespaces-exceptions")
+add_subdirectory("practice-02-template_functions")
