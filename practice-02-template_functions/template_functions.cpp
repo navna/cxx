@@ -17,11 +17,11 @@ struct complex {
 };
 
 template<typename T>
-int min(const T* const data, const size_t n) {
+ptrdiff_t min(const T* const data, const size_t n) {
     if (n == 0) {
         return -1;
     }
-    int index = 0;
+    size_t index = 0;
     for (size_t i = 1; i < n; ++i) {
         if (data[i] < data[index]) {
             index = i;
@@ -34,6 +34,6 @@ int main() {
     int intData[] = { 4, 3, 1, 2 };
     complex complexData[] = { {4, 3}, {1, 3}, {3, 3} };
 
-    printf("%d\n", min(intData, sizeof(intData) / sizeof(*intData)));
-    printf("%d\n", min(complexData, sizeof(complexData) / sizeof(*complexData)));
+    printf("%td\n", min(intData, sizeof(intData) / sizeof(*intData)));
+    printf("%td\n", min(complexData, sizeof(complexData) / sizeof(*complexData)));
 }
