@@ -19,6 +19,7 @@ add_subdirectory("lecture-01-methods-ctors")
 add_subdirectory("lecture-03-exception_safety-operators")
 add_subdirectory("lecture-04-dtor-raii-rule_of_three")
 add_subdirectory("lecture-05-move")
+add_subdirectory("lecture-06-iterators")
 
 add_subdirectory("practice-01-const-static-ref-namespaces-exceptions")
 add_subdirectory("practice-02-template_functions")
