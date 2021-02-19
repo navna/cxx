@@ -23,3 +23,4 @@ add_subdirectory("lecture-06-iterators")
 
 add_subdirectory("practice-01-const-static-ref-namespaces-exceptions")
 add_subdirectory("practice-02-template_functions")
+add_subdirectory("practice-03-vector")
