@@ -83,7 +83,7 @@ bool iterative_search(const node* root, const int key) {
 //    dynamic = true;
 //    auto ptr = malloc(count);
 //    printf("Allocated %zu bytes on address %zu.\n", count, (size_t)ptr);
-//    return malloc(count);
+//    return ptr;
 //}
 //
 //void operator delete(void* ptr) {
