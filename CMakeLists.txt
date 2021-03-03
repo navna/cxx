@@ -23,6 +23,7 @@ add_subdirectory("lecture-06-iterators")
 add_subdirectory("lecture-07-sort")
 add_subdirectory("lecture-08-hashtables")
 add_subdirectory("lecture-09-trees")
+add_subdirectory("lecture-10-avl")
 
 add_subdirectory("practice-01-const-static-ref-namespaces-exceptions")
 add_subdirectory("practice-02-template_functions")
