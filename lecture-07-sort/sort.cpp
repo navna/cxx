@@ -5,7 +5,7 @@
 
 template<typename It>
 void selection_sort(It begin, It end) {
-    while (begin != end)
+    while (begin != end) {
         auto min = std::min_element(begin, end);
         if (begin != min) {
             std::swap(*begin, *min);
