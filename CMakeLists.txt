@@ -26,6 +26,7 @@ add_subdirectory("lecture-09-trees")
 add_subdirectory("lecture-10-avl")
 add_subdirectory("lecture-11-graph")
 add_subdirectory("lecture-12-dijkstra")
+add_subdirectory("lecture-13-inheritance")
 
 add_subdirectory("practice-01-const-static-ref-namespaces-exceptions")
 add_subdirectory("practice-02-template_functions")
