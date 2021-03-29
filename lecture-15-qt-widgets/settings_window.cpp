@@ -29,8 +29,8 @@ SettingsWindow::SettingsWindow(Settings& settings) : _settings(settings) {
     // Создание ползунков
     auto fishCountSlider = CreateSlider(Settings::FISH_COUNT_MIN, Settings::FISH_COUNT_MAX, settings.fishCount());
     auto speedSlider = CreateSlider(Settings::SPEED_MIN, Settings::SPEED_MAX, settings.speed());
-    //QObject::connect(fishCountSlider, &QSlider::valueChanged, this, &SettingsWindow::onFishCountChanged);
-    //QObject::connect(speedSlider, &QSlider::valueChanged, this, &SettingsWindow::onSpeedChanged);
+    QObject::connect(fishCountSlider, &QSlider::valueChanged, this, &SettingsWindow::onFishCountChanged);
+    QObject::connect(speedSlider, &QSlider::valueChanged, this, &SettingsWindow::onSpeedChanged);
     
     // Формирование итогового макета
     auto layout = new QFormLayout;
