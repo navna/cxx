@@ -1,7 +1,7 @@
 ﻿find_package(Qt5 COMPONENTS Core Gui Widgets)
 set(CMAKE_AUTOMOC ON)
 
-add_executable("lecture-15-aquarium" "main.cpp" "settings.h" "settings.cpp" "settings_window.h" "settings_window.cpp")
+add_executable("lecture-15-aquarium" "aquarium_window.h" "aquarium_windows.cpp" "main.cpp" "settings.h" "settings.cpp" "settings_window.h" "settings_window.cpp")
 target_link_libraries("lecture-15-aquarium" Qt5::Core Qt5::Gui Qt5::Widgets)
 
 # При каждой сборке:

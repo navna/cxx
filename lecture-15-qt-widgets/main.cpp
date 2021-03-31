@@ -1,12 +1,12 @@
 #include <QApplication>
 
-#include "settings_window.h"
+#include "aquarium_window.h"
 
 int main(int argc, char** argv) {
     QApplication app(argc, argv);
 
-    Settings settings;
-    SettingsWindow window(settings);
+    AquariumWindow window(QSize(1024, 768), QSize(50, 50));
+    window.setFixedSize(window.sizeHint());
     window.show();
 
     return QApplication::exec();
