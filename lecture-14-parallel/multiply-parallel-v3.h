@@ -29,7 +29,7 @@ class matrix_multiplier_v3 {
 
             // Критическая секция
             {
-                lock_guard<mutex> lk(_mutex);
+                std::lock_guard<std::mutex> lk(_mutex);
                 i = _next_i;
                 j = _next_j;
                 if (i == rows) {

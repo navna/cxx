@@ -1,5 +1,6 @@
-#include <stdio.h>
-#include <math.h>
+#include <cstddef>
+#include <cstdio>
+#include <cmath>
 
 struct complex {
     float x;

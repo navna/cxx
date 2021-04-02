@@ -1,5 +1,6 @@
-#include <stdio.h>
-#include <string.h>
+#include <cstddef>
+#include <cstdio>
+#include <cstring>
 
 struct person {
     char name[16];

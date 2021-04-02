@@ -15,7 +15,7 @@ namespace my {
 
         vector() : _data(nullptr), _size(0) { }
 
-        vector(const vector<T>& rhs) : _data(new T[rhs._size]), size(rhs._size) {
+        vector(const vector<T>& rhs) : _data(new T[rhs._size]), _size(rhs._size) {
             for (size_t i = 0; i < _size; ++i) {
                 _data[i] = rhs._data[i];
             }

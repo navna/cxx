@@ -1,4 +1,5 @@
 #include <chrono>
+#include <condition_variable>
 #include <iostream>
 #include <mutex>
 #include <random>
@@ -27,7 +28,7 @@ void producer(const size_t thread_index, const uint64_t seed) {
         {
             lock_guard<mutex> lk(task_queue_mutex);
             cout << "Producing " << value << " in thread " << thread_index << endl;
-            task_queue.push(value);
+            task_queue.push((int)value);
         }
 
         task_queue_cv.notify_all();
