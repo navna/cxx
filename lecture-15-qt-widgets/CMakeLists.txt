@@ -20,7 +20,7 @@ add_custom_command(
 
 if (WIN32)
     # Чтобы убрать консоль
-    #set_property(TARGET "lecture-15-aquarium" PROPERTY WIN32_EXECUTABLE true)
+    set_property(TARGET "lecture-15-aquarium" PROPERTY WIN32_EXECUTABLE true)
 
     # Копирование DLL-файлов библиотеки Qt в выходную директорию
     add_custom_command(
