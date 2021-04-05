@@ -1,7 +1,70 @@
 #include "protocol.h"
+
+#include <algorithm>
 #include <stdexcept>
 
 using namespace std;
+
+// ========
+// Protocol
+// ========
+
+void Protocol::writeUnsigned(Buffer& buffer, size_t value) {
+	const auto b3 = (value & 0xFF000000) >> 24;
+	const auto b2 = (value & 0xFF0000) >> 16;
+	const auto b1 = (value & 0xFF00) >> 8;
+	const auto b0 = (value & 0xFF);
+	buffer.push_back((Byte)b3);
+	buffer.push_back((Byte)b2);
+	buffer.push_back((Byte)b1);
+	buffer.push_back((Byte)b0);
+}
+
+size_t Protocol::readUnsigned(Buffer& buffer, bool extractBytes) {
+	if (buffer.size() < 4) {
+		throw runtime_error("Not enough bytes to read unsigned.");
+	}
+	const auto b3 = buffer[0];
+	const auto b2 = buffer[1];
+	const auto b1 = buffer[2];
+	const auto b0 = buffer[3];
+	if (extractBytes) {
+		buffer.pop_front();
+		buffer.pop_front();
+		buffer.pop_front();
+		buffer.pop_front();
+	}
+	return (b3 << 24) | (b2 << 16) | (b1 << 8) | b0;
+}
+
+void Protocol::writeData(Buffer& buffer, const string& data) {
+	writeUnsigned(buffer, data.size());
+	buffer.insert(buffer.end(), data.begin(), data.end());
+}
+
+string Protocol::readData(Buffer& buffer) {
+	const auto size = readUnsigned(buffer);
+	if (buffer.size() < size) {
+		throw runtime_error("Not enough bytes to read data.");
+	}
+
+	string data;
+	for (size_t i = 0; i < size; ++i) {
+		const auto c = buffer.front();
+		buffer.pop_front();
+		data += c;
+	}
+	return data;
+}
+
+bool Protocol::canParse(Buffer& buffer) {
+	const auto available = buffer.size();
+	if (available < UNSIGNED_SIZE) {
+		return false;
+	}
+	const auto payloadSize = Protocol::readUnsigned(buffer, false);
+	return available >= UNSIGNED_SIZE + payloadSize;
+}
 
 // =====================
 // Protocol::GetMessages
@@ -9,97 +72,49 @@ using namespace std;
 
 using GetMessages = Protocol::GetMessages;
 
-void GetMessages::sendRequest(ostream& stream, size_t index) {
-	writeUnsigned(stream, 2 * UNSIGNED_SIZE);
-	writeUnsigned(stream, (size_t)RequestType::GetMessages);
-	writeUnsigned(stream, index);
+Protocol::Buffer GetMessages::makeRequest(size_t fromIndex) {
+	Buffer buffer;
+	writeUnsigned(buffer, 2 * UNSIGNED_SIZE);
+	writeUnsigned(buffer, (size_t)QueryType::GetMessages);
+	writeUnsigned(buffer, fromIndex);
+	return buffer;
 }
 
-size_t GetMessages::recvRequest(istream& stream) {
-	return readUnsigned(stream);
+size_t GetMessages::parseRequest(Buffer& buffer) {
+	return readUnsigned(buffer);
 }
 
-void GetMessages::sendResponse(ostream& stream, const vector<string>& data) {
-	size_t size = 0;
-	for (const auto& item : data) {
-		size += item.size() + 1;
+Protocol::Buffer GetMessages::makeResponse(const vector<string>& messages) {
+	Buffer buffer;
+	writeUnsigned(buffer, (size_t)QueryType::GetMessages);
+	writeUnsigned(buffer, messages.size());
+	for (const auto& message : messages) {
+		writeData(buffer, message);
 	}
-	writeUnsigned(stream, UNSIGNED_SIZE + size);
-	writeUnsigned(stream, (size_t)RequestType::GetMessages);
-	for (const auto& item : data) {
-		writeString(stream, item);
-	}
+
+	Buffer payloadSizeBuffer;
+	const auto payloadSize = buffer.size();
+	writeUnsigned(payloadSizeBuffer, payloadSize);
+	buffer.insert(buffer.begin(), payloadSizeBuffer.begin(), payloadSizeBuffer.end());
+
+	return buffer;
 }
 
-vector<string> GetMessages::recvResponse(istream& stream) {
-	vector<string> data;
-	while (true) {
-		const auto s = readString(stream);
-		if (stream.good()) {
-			data.push_back(s);
-		}
-		else {
-			return data;
-		}
+vector<string> GetMessages::parseResponse(Buffer& buffer) {
+	const auto messageCount = readUnsigned(buffer);
+
+	vector<string> messages;
+	messages.reserve(messageCount);
+	for (size_t i = 0; i < messageCount; ++i) {
+		const auto message = readData(buffer);
+		messages.push_back(message);
 	}
+
+	return messages;
 }
 
 // =====================
 // Protocol::SendMessage
 // =====================
 
-// TODO
-
-// ========
-// Protocol
-// ========
-
-size_t Protocol::readUnsigned(istream& stream) {
-	const auto b3 = (unsigned char)stream.get();
-	const auto b2 = (unsigned char)stream.get();
-	const auto b1 = (unsigned char)stream.get();
-	const auto b0 = (unsigned char)stream.get();
-	return (b3 << 24) | (b2 << 16) | (b1 << 8) | b0;
-}
-
-void Protocol::writeUnsigned(ostream& stream, size_t value) {
-	stream.put((char)((value & 0xFF000000) >> 24));
-	stream.put((char)((value & 0xFF0000) >> 16));
-	stream.put((char)((value & 0xFF00) >> 8));
-	stream.put((char)(value & 0xFF));
-}
-
-string Protocol::readString(istream& stream) {
-	string value;
-	while (true) {
-		const auto b = stream.get();
-		if (b == EOF)
-			return string();
-		else if (b == '\0')
-			return value;
-		else
-			value += b;
-	}
-}
-
-void Protocol::writeString(std::ostream& stream, const string& value) {
-	// Обращение к value[value.size()] гарантированно корректно только в C++11 и выше
-	stream.write(value.data(), value.size() + 1);
-}
-
-bool Protocol::canRecv(istream& stream) {
-	const auto begin = stream.tellg();
-	stream.seekg(0, ios::end);
-	const auto end = stream.tellg();
-	const auto available = (size_t)(end - begin);
-
-	stream.seekg(begin);
-	if (available < UNSIGNED_SIZE) {
-		return false;
-	}
-
-	const auto messageSize = Protocol::readUnsigned(stream);
-	stream.seekg(begin);
-
-	return available >= UNSIGNED_SIZE + messageSize;
-}
+// TODO [Protocol] Написать определения методов для отправки сообщения

@@ -2,35 +2,37 @@
 
 #include <cstddef>
 #include <deque>
-#include <iostream>
 #include <string>
 #include <vector>
 
-enum class RequestType : std::size_t {
-	GetMessages,
-	SendMessage
-};
-
 struct Protocol final {
-	struct GetMessages final {
-		static void sendRequest(std::ostream& stream, std::size_t index);
-		static std::size_t recvRequest(std::istream& stream);
-
-		static void sendResponse(std::ostream& stream, const std::vector<std::string>& data);
-		static std::vector<std::string> recvResponse(std::istream& stream);
-	};
-
-	struct SendMessage {
-		// TODO
-	};
+	using Byte = unsigned char;
+	using Buffer = std::deque<Byte>;
 
 	static const std::size_t UNSIGNED_SIZE = 4;
 
-	static std::size_t readUnsigned(std::istream& stream);
-	static void writeUnsigned(std::ostream& stream, std::size_t value);
+	static void writeUnsigned(Buffer& buffer, std::size_t value);
+	static std::size_t readUnsigned(Buffer& buffer, bool extractBytes = true);
 
-	static std::string readString(std::istream& stream);
-	static void writeString(std::ostream& stream, const std::string& value);
+	static void writeData(Buffer& buffer, const std::string& value);
+	static std::string readData(Buffer& buffer);
 
-	static bool canRecv(std::istream& stream);
+	static bool canParse(Buffer& buffer);
+
+	// Типы запросов-ответов
+	enum class QueryType : std::size_t {
+		GetMessages,
+		SendMessage
+	};
+
+	struct GetMessages final {
+		static Buffer makeRequest(std::size_t fromIndex);
+		static std::size_t parseRequest(Buffer& buffer);
+		static Buffer makeResponse(const std::vector<std::string>& messages);
+		static std::vector<std::string> parseResponse(Buffer& buffer);
+	};
+
+	struct SendMessage {
+		// TODO [Protocol] Написать объявления методов для отправки сообщения
+	};
 };

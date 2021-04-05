@@ -2,87 +2,94 @@
 
 #include <stdexcept>
 
-#include <QTcpSocket>
-
 #include "protocol.h"
 
 using namespace std;
 
 void Server::newConnection() {
-    auto socket = _server.nextPendingConnection();
-    if (socket == nullptr) {
-        return;
-    }
+	auto socket = _server.nextPendingConnection();
+	if (socket == nullptr) {
+		return;
+	}
 
-    _streams[socket] = stringstream();
+	_buffers[socket] = Protocol::Buffer();
 
-    QObject::connect(socket, &QTcpSocket::readyRead, this, &Server::readyRead);
-    QObject::connect(socket, &QTcpSocket::disconnected, this, &Server::disconnected);
+	connect(socket, &QTcpSocket::readyRead, this, &Server::readyRead);
+	connect(socket, &QTcpSocket::disconnected, this, &Server::disconnected);
 }
 
 void Server::readyRead() {
-    auto socket = qobject_cast<QTcpSocket*>(QObject::sender());
-    auto& stream = _streams[socket];
-    while (socket->bytesAvailable() > 0) {
-        auto data = socket->readAll();
-        for (auto b : data) {
-            stream.put(b);
-        }
-    }
+	auto socket = qobject_cast<QTcpSocket*>(sender());
+	auto& buffer = _buffers[socket];
+	if (socket->bytesAvailable() == 0) {
+		return;
+	}
 
-    if (!Protocol::canRecv(stream)) {
-        return;
-    }
+	const auto data = socket->readAll();
+	buffer.insert(buffer.end(), data.begin(), data.end());
 
-    // ОБРАБОТКА ЗАПРОСА И ОТПРАВКА ОТВЕТА
-    Protocol::readUnsigned(stream); // Извлекаем размер тела запроса из буфера
-    const auto requestType = (RequestType)Protocol::readUnsigned(stream);
+	if (!Protocol::canParse(buffer)) {
+		return;
+	}
 
-    switch (requestType) {
+	// ОСНОВНАЯ ЛОГИКА СЕРВЕРА
 
-    case RequestType::GetMessages:
-    {
-        const auto index = Protocol::GetMessages::recvRequest(stream);
+	Protocol::readUnsigned(buffer); // Извлекаем размер тела запроса из буфера
+	const auto queryType = (Protocol::QueryType)Protocol::readUnsigned(buffer);
 
-        vector<string> response;
-        if (index < _messages.size()) {
-            response.insert(response.end(), _messages.begin() + index, _messages.end());
-        }
+	switch (queryType) {
 
-        stream = stringstream();
-        Protocol::GetMessages::sendResponse(stream, response);
+	case Protocol::QueryType::GetMessages:
+	{
+		// Распаковка запроса из массива байтов
+		const auto fromIndex = Protocol::GetMessages::parseRequest(buffer);
 
-        auto buffer = stream.str();
-        socket->write(buffer.c_str(), buffer.size());
-    }
+		// Формирование ответа
+		vector<string> messages;
+		if (fromIndex < _messages.size()) {
+			messages.insert(messages.end(), _messages.begin() + fromIndex, _messages.end());
+		}
 
-    case RequestType::SendMessage:
-    {
-        // TODO
-    }
+		// Упаковка ответа в массив байтов
+		const auto responseBuffer = Protocol::GetMessages::makeResponse(messages);
+		string responseData(responseBuffer.begin(), responseBuffer.end());
 
-    }
+		// Отправка ответа
+		socket->write(responseData.c_str(), responseData.size());
 
-    socket->close();
+		break;
+	}
+
+	case Protocol::QueryType::SendMessage:
+	{
+		// TODO [Server] Реализовать логику для SendMessage
+
+		break;
+	}
+
+	}
+
+	socket->close();
 }
 
 void Server::disconnected() {
-    auto socket = qobject_cast<QTcpSocket*>(QObject::sender());
-    socket->deleteLater();
-    _streams.erase(socket);
+	auto socket = qobject_cast<QTcpSocket*>(QObject::sender());
+	socket->deleteLater();
+	_buffers.erase(socket);
 }
 
 Server::Server(const QHostAddress& address, quint16 port) {
-    QObject::connect(&_server, &QTcpServer::newConnection, this, &Server::newConnection);
-    if (!_server.listen(address, port)) {
-        throw runtime_error(_server.errorString().toStdString());
-    }
+	connect(&_server, &QTcpServer::newConnection, this, &Server::newConnection);
+
+	if (!_server.listen(address, port)) {
+		throw runtime_error(_server.errorString().toStdString());
+	}
 }
 
 QHostAddress Server::address() const {
-    return _server.serverAddress();
+	return _server.serverAddress();
 }
 
 quint16 Server::port() const {
-    return _server.serverPort();
+	return _server.serverPort();
 }
