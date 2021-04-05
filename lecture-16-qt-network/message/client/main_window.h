@@ -14,7 +14,7 @@ private:
 	QPushButton* _button;
 
 private slots:
-	void getMessages();
+	void clicked();
 	void responded(Protocol::QueryType queryType, Protocol::Buffer& response);
 	void failed();
 

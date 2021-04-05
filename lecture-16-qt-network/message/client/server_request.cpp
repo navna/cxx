@@ -55,5 +55,5 @@ ServerRequest::ServerRequest(const QHostAddress& address, quint16 port, const Pr
 	_socket.connectToHost(address, port);
 
 	_timeoutTimer.setSingleShot(true);
-	_timeoutTimer.start(5000);
+	_timeoutTimer.start(timeout);
 }

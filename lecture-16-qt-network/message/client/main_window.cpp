@@ -11,7 +11,7 @@
 
 using namespace std;
 
-void MainWindow::getMessages() {
+void MainWindow::clicked() {
 	const auto buffer = Protocol::GetMessages::makeRequest(0); // TODO [Client] Индекс определять "умным" способом
 	const auto serverRequest = new ServerRequest(QHostAddress::LocalHost, 5000, buffer, 5000);
 
@@ -50,11 +50,15 @@ void MainWindow::responded(Protocol::QueryType queryType, Protocol::Buffer& resp
 	}
 
 	_button->setEnabled(true);
+
+	sender()->deleteLater();
 }
 
 void MainWindow::failed() {
 	_textEdit->setText(QString("Не удалось отправить запрос или получить ответ!"));
 	_button->setEnabled(true);
+
+	sender()->deleteLater();
 }
 
 
@@ -67,5 +71,5 @@ MainWindow::MainWindow() : _textEdit(new QTextEdit), _button(new QPushButton) {
 	rootLayout->setAlignment(_button, Qt::AlignRight);
 	setLayout(rootLayout);
 
-	QObject::connect(_button, &QAbstractButton::clicked, this, &MainWindow::getMessages);
+	QObject::connect(_button, &QAbstractButton::clicked, this, &MainWindow::clicked);
 }
