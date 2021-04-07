@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <title>Пример формы</title>
+    <meta charset="utf-8"/>
+    <link rel="stylesheet" type="text/css" href="style.css"/>
+</head>
+
+<body>
+
+<nav>
+    <ul>
+        <li><a href="index.html">Основы HTML</a></li>
+        <li><a href="form.html">Пример формы</a></li>
+    </ul>
+</nav>
+
+<section>
+
+    <form action="http://localhost:5000" method="get">
+        Текстовое поле ввода:
+        <input type="text" name="myText" value="Текст по умолчанию"/>
+        <br/>
+    
+        Числовое поле ввода:
+        <input type="number" name="myNumber" value="42"/>
+        <br/>
+    
+        <label><input type="checkbox" name="myCheckbox">Пример флажка</input></label>
+        <br/>
+    
+        <label><input type="radio" name="myRadio" value="option1">Первая опция</input></label>
+        <label><input type="radio" name="myRadio" value="option2">Вторая опция</input></label>
+        <br/>
+    
+        <select name="mySelect">
+            <option value="select1">Первый выбор</option>
+            <option value="select2">Второй выбор</option>
+            <option value="select3">Третий выбор</option>
+        </select>
+        <br/>
+    
+        <input type="reset" value="Сбросить"/>
+        <input type="submit" value="Отправить"/>
+    </form>
+
+</section>
+
+</body>
+
+</html>

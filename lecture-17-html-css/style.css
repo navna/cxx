@@ -1,0 +1,76 @@
+html, body {
+    margin: 0;
+    padding: 0;
+}
+
+nav {
+    width: 600px;
+    margin: 0 auto; /* Выравнивание по центру */
+}
+
+section {
+    width: 600px;
+    margin: 0 auto;
+}
+
+nav ul {
+    margin: 0;
+    padding: 0;
+    display: inline-block;
+    list-style-type: none;
+}
+
+nav li {
+    float: left;
+}
+
+nav a {
+    display: block;
+    background-color: black;
+    color: white;
+    text-decoration: none;
+    padding: 8px;
+}
+
+nav a:hover {
+    background-color: #333333;
+}
+
+p {
+    text-indent: 1cm;
+    text-align: justify;
+}
+
+span.first {
+    background: yellow;
+}
+
+span.last {
+    background: blue;
+    color: white;
+}
+
+ul, ol {
+    list-style-position: inside;
+    margin: 0;
+    padding: 0 0 0 1cm;
+}
+
+
+figure {
+    text-align: center;
+}
+
+table {
+    width: 300px;
+    border-collapse: collapse;
+}
+
+table caption {
+    text-align: left;
+}
+
+td {
+    border: 1px solid black;
+    padding: 4px;
+}
